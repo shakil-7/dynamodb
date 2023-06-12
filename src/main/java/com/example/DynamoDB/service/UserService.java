@@ -1,10 +1,11 @@
 package com.example.DynamoDB.service;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.example.DynamoDB.dto.BalanceRangeDto;
+import com.example.DynamoDB.dto.SendMoneyDto;
 import com.example.DynamoDB.entity.UserDetails;
 import com.example.DynamoDB.entity.UserEntity;
 import com.example.DynamoDB.repository.UserRepo;
@@ -81,5 +82,51 @@ public class UserService {
 //            });
         }
         return list;
+    }
+
+    public List<UserEntity> sendMoney(SendMoneyDto dto) {
+
+        HashMap<String,AttributeValue> eav = new HashMap<String,AttributeValue>();
+        eav.put(":y", new AttributeValue().withS(dto.getReceiverAccountNo()));
+
+//        DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+//                .withKeyConditionExpression("userId = :x and accountNo = :y")
+//                .withExpressionAttributeValues(eav);
+//
+//        dynamoDBMapper.query(UserEntity.class, queryExpression).forEach(x -> {
+//            System.out.println("x = " + x);
+//        });
+//
+//        System.out.println("dynamoDBMapper.query(UserEntity.class, queryExpression) = " + dynamoDBMapper.query(UserEntity.class, queryExpression));
+
+        DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                .withIndexName("accountNo-userId")
+                .withKeyConditionExpression("accountNo = :y")
+                .withExpressionAttributeValues(eav)
+                .withConsistentRead(false);
+
+        dynamoDBMapper.query(UserEntity.class, queryExpression).forEach(x -> {
+            System.out.println("x = " + x);
+        });
+
+
+        HashMap<String,AttributeValue> eav1 = new HashMap<String,AttributeValue>();
+        eav1.put(":x", new AttributeValue().withS(dto.getSenderAccountNo()));
+        queryExpression = new DynamoDBQueryExpression()
+                .withIndexName("accountNo-userId")
+                .withKeyConditionExpression("accountNo = :x")
+                .withExpressionAttributeValues(eav1)
+                .withConsistentRead(false);
+        
+        dynamoDBMapper.query(UserEntity.class, queryExpression).forEach(x -> {
+            System.out.println("x = " + x);
+        });
+
+        System.out.println("dynamoDBMapper.query(UserEntity.class, queryExpression) = " + dynamoDBMapper.query(UserEntity.class, queryExpression));
+        System.out.println("dynamoDBMapper.query(UserEntity.class, queryExpression).iterator() = " + dynamoDBMapper.query(UserEntity.class, queryExpression).iterator());
+
+        UserEntity sender = dynamoDBMapper.load(UserEntity.class, dto.getSenderAccountNo());
+        UserEntity receiver = dynamoDBMapper.load(UserEntity.class, dto.getReceiverAccountNo());
+        return new ArrayList<UserEntity>();
     }
 }

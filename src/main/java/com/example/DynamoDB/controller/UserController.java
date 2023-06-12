@@ -2,6 +2,7 @@ package com.example.DynamoDB.controller;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.example.DynamoDB.dto.BalanceRangeDto;
+import com.example.DynamoDB.dto.SendMoneyDto;
 import com.example.DynamoDB.entity.UserEntity;
 import com.example.DynamoDB.repository.UserRepo;
 import com.example.DynamoDB.service.UserService;
@@ -36,5 +37,10 @@ public class UserController {
     @PostMapping("/account-with-balance-in-between")
     public List<UserEntity> getAccountWithBalance(@RequestBody BalanceRangeDto dto) {
         return userService.getAccountWithBalance(dto);
+    }
+
+    @PostMapping("/send-money")
+    public List<UserEntity> sendMoney(@RequestBody SendMoneyDto dto) {
+        return userService.sendMoney(dto);
     }
 }
