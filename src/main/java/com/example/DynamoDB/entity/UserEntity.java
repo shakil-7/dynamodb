@@ -19,7 +19,7 @@ public class UserEntity {
     @DynamoDBHashKey
     private String userId;
     @DynamoDBRangeKey
-    private String accountNo = "null";
+    private String accountNo = "USER#NULL";
 
     private UserDetails userDetails;
 
